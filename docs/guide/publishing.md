@@ -69,7 +69,7 @@ ORDERS = Stream("orders", group="billing", maxlen=100_000)
 
 ## Capping the stream with `maxlen`
 
-A stream grows forever unless you trim it. Set `maxlen` on the `Stream`, or pass `maxlen=` to a single `publish` call (the call wins). rillkit uses approximate trimming (`XADD ... MAXLEN ~ n`), which is cheap but may keep slightly more than `n` entries.
+A stream grows forever unless you trim it. Set `maxlen` on the `Stream`, or pass `maxlen=` to a single `publish` call (the call wins). rillkit uses approximate trimming (`XADD ... MAXLEN ~ n`), which is cheap but may keep slightly more than `n` entries. Redis trims in whole blocks, so streams under about 100 entries are effectively never trimmed. Pass `approximate=False` to `publish` for an exact cap (slower on very large streams).
 
 ::: warning Trimming can drop unprocessed messages
 If consumers fall further behind than `maxlen` entries, the oldest entries are deleted before anyone reads them. Choose a cap comfortably larger than your worst-case backlog. If an entry that is still pending gets trimmed, rillkit notices when it tries to claim it and simply acknowledges it.

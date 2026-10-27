@@ -43,23 +43,23 @@ import os
 
 from rillkit import Settings, Broker
 
-os.environ.update(REDIS_HOST="localhost", REDIS_PORT="6390", REDIS_DB="14", REDIS_SSL="false")
+os.environ.update(REDIS_HOST="localhost", REDIS_PORT="6380", REDIS_DB="3", REDIS_SSL="false")
 s = Settings.from_env()
 print(s)
 print(Broker.from_env().client.ping())
-os.environ.update(MYAPP_REDIS_URL="redis://localhost:6390/14")
+os.environ.update(MYAPP_REDIS_URL="redis://localhost:6380/3")
 print(Settings.from_env("MYAPP_REDIS_"))
 print(Broker(settings=Settings.from_env("MYAPP_REDIS_")).client.ping())
 
 import redis
-own = redis.Redis(host="localhost", port=6390, db=14, decode_responses=False, socket_timeout=10)
+own = redis.Redis(host="localhost", port=6380, db=3, decode_responses=False, socket_timeout=10)
 print(Broker(client=own).client is own)
 ```
 
 ```text
-Settings(url='redis://localhost:6390/14', host='localhost', port=6390, db=14, password=None, ssl=False)
+Settings(url='redis://localhost:6380/3', host='localhost', port=6380, db=3, password=None, ssl=False)
 True
-Settings(url='redis://localhost:6390/14', host='localhost', port=6379, db=0, password=None, ssl=False)
+Settings(url='redis://localhost:6380/3', host='localhost', port=6379, db=0, password=None, ssl=False)
 True
 True
 ```

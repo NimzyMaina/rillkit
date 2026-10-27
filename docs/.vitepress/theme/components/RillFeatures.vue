@@ -23,12 +23,12 @@ const feats: Feat[] = [
   },
   {
     title: 'Dead-letter queue with context',
-    body: 'When retries run out the entry moves to a DLQ stream along with the error, the original id, the group and the delivery count. replay_dlq() sends it back.',
+    body: 'When retries run out, or you reject it, the entry moves to a DLQ stream along with the error, the original id, the group and the delivery count. replay_dlq() sends it back.',
     span: 'b', tone: 'pink',
   },
   {
     title: 'Ack policies',
-    body: 'Decide what happens when a handler finishes. The default retries on error, and you can opt out.',
+    body: 'Decide what happens when a handler finishes. The default retries on error. nack() retries, reject() skips straight to the DLQ.',
     span: 'c', tone: 'amber',
     chips: ['NACK_ON_ERROR', 'ACK_ALWAYS', 'ACK_FIRST', 'MANUAL'],
   },

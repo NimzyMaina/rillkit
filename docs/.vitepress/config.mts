@@ -61,6 +61,7 @@ export default defineConfig({
             { text: 'Two-stage pipeline', link: '/examples/pipeline' },
             { text: 'Pydantic models', link: '/examples/pydantic-models' },
             { text: 'Retries and DLQ', link: '/examples/retries-and-dlq' },
+            { text: 'Reject vs nack', link: '/examples/reject-vs-nack' },
             { text: 'Manual ack', link: '/examples/manual-ack' },
             { text: 'Timing and idempotency', link: '/examples/middleware-timing-and-idempotency' },
             { text: 'Multiple workers', link: '/examples/multiple-workers' },

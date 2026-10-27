@@ -82,3 +82,5 @@ Walk through it:
 - After "fixing" the bug, `replay_dlq(JOBS)` moved the entry back onto `jobs` and the handler processed it on delivery 1 of the new entry. The DLQ is empty again.
 
 Read the full rules in [Retries and the DLQ](/guide/retries-and-dlq). In production keep the default `claim_idle_ms=60000`, or anything longer than your slowest handler.
+
+To skip the retries for a message that can never succeed, call `msg.reject("reason")` instead. See [Reject vs nack](/examples/reject-vs-nack).

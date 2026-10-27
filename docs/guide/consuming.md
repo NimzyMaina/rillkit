@@ -14,7 +14,7 @@ def handle_order(order: dict):
 | --- | --- | --- |
 | `stream` | required | A stream name or a [`Stream`](/reference/stream). A consumer needs a group, from either `Stream.group` or `group=`. |
 | `group` | `None` | Consumer group. Overrides `Stream.group` if both are given. Without any group, `subscribe` raises `ValueError`. |
-| `ack_policy` | `AckPolicy.NACK_ON_ERROR` | When to acknowledge. See [Ack policies](/guide/ack-policies). |
+| `ack_policy` | `AckPolicy.NACK_ON_ERROR` | When to acknowledge. See [Ack policies](/guide/ack-policies). Inside a handler, `msg.nack()` retries and `msg.reject()` skips retries and dead-letters. |
 | `max_retries` | `3` | Retries after the first attempt, so up to `max_retries + 1` runs. `None` retries forever. |
 | `claim_idle_ms` | `60000` | How long a pending message must sit idle before it is retried. Must be longer than your slowest handler. |
 | `backoff` | `1.0` | Multiplier applied to the idle time on each further retry. `1.0` means constant. |

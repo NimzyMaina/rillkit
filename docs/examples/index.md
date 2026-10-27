@@ -10,6 +10,7 @@ Most scripts use `start()` and `stop()` with a short sleep so they finish by the
 | [Two-stage pipeline](/examples/pipeline) | `@subscribe` plus `@publisher`: extraction, then feature engineering |
 | [Pydantic models](/examples/pydantic-models) | typed handlers and validation failures in the DLQ |
 | [Retries and DLQ](/examples/retries-and-dlq) | flaky and broken messages, dead letters, `replay_dlq` |
+| [Reject vs nack](/examples/reject-vs-nack) | `nack()` to retry, `reject()` to skip retries and dead-letter |
 | [Manual ack](/examples/manual-ack) | `AckPolicy.MANUAL` with `ack()` and `nack()` |
 | [Timing and idempotency](/examples/middleware-timing-and-idempotency) | a timing middleware and `Idempotent` |
 | [Multiple workers](/examples/multiple-workers) | several consumers sharing a group, `active_workers` |

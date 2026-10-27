@@ -104,7 +104,7 @@ B.after_processed exc=None
 
 - **One instance is shared by every message** and runs on the consumer thread (or on whichever thread publishes). Keep per-message state on the `Message` object, as in `msg.started = ...`, not on `self`.
 - Call `call_next(msg)` exactly once in `consume_scope` and return its result, unless you mean to skip the handler.
-- Raise `AckMessage` or `NackMessage` from `on_receive` or `consume_scope` to short-circuit. Any other exception from `on_receive` or `consume_scope` is treated like a handler failure.
+- Raise `AckMessage`, `NackMessage` or `RejectMessage` from `on_receive` or `consume_scope` to short-circuit. Any other exception from `on_receive` or `consume_scope` is treated like a handler failure.
 - `after_processed` failures are logged and swallowed, so a broken metrics backend cannot break message handling. It runs after the ack/nack/DLQ decision has been made, so `msg.acked` and `msg.nacked` are final.
 - `exc` in `after_processed` is the error that caused a failure, or `None` after a clean run or an `AckMessage`.
 - `msg.body` can be read in `consume_scope` before calling `call_next`. If it cannot be decoded, that raises `DecodeError` and the message is dead-lettered.

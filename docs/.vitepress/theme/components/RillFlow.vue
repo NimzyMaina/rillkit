@@ -54,8 +54,8 @@ const layouts = [
 ]
 const steps = [
   { k: 'ok', t: 'Handler returns', d: 'The entry is acked and leaves the pending list.' },
-  { k: 'retry', t: 'Handler raises', d: 'It is nacked and delivered again after a growing backoff.' },
-  { k: 'dlq', t: 'Retries run out', d: 'It moves to the DLQ with the error, original id and delivery count.' },
+  { k: 'retry', t: 'Handler raises', d: 'It is nacked and delivered again after a growing backoff. Call reject() to skip retries.' },
+  { k: 'dlq', t: 'Retries run out, or you reject', d: 'It moves to the DLQ with the error, original id and delivery count.' },
 ]
 </script>
 
