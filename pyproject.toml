@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rillkit"
+version = "0.1.0"
+description = "Simple publish and consume for Redis Streams: consumer groups, retries, DLQ, ack policies and middleware."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Nimrod Maina" }]
+keywords = ["redis", "streams", "consumer-group", "queue", "messaging", "worker"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+dependencies = ["redis>=5.0"]
+
+[project.optional-dependencies]
+pydantic = ["pydantic>=2.0"]
+
+[project.urls]
+Homepage = "https://nimzymaina.github.io/rillkit/"
+Documentation = "https://nimzymaina.github.io/rillkit/"
+Repository = "https://github.com/NimzyMaina/rillkit"
+Issues = "https://github.com/NimzyMaina/rillkit/issues"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-timeout>=2", "pydantic>=2", "ruff>=0.6", "mypy>=1.10", "build", "twine"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rillkit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 60
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["UP007", "UP045"]
