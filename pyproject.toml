@@ -41,6 +41,9 @@ dev = ["pytest>=8", "pytest-timeout>=2", "pydantic>=2", "ruff>=0.6", "mypy>=1.10
 [tool.hatch.build.targets.wheel]
 packages = ["src/rillkit"]
 
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "README.md", "LICENSE", "pyproject.toml"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 60
