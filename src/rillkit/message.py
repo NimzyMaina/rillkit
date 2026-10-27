@@ -32,6 +32,8 @@ class Message:
         self.consumer = consumer
         self.acked = False
         self.nacked = False
+        self.rejected = False
+        self.reject_reason: Optional[str] = None
         self._client = client
         self._body: Any = _MISSING
         self.error: Optional[BaseException] = None
@@ -57,6 +59,16 @@ class Message:
         """Leave the message pending so it is retried (or sent to the DLQ once retries run out)."""
         if not self.acked:
             self.nacked = True
+
+    def reject(self, reason: Optional[str] = None) -> None:
+        """Skip the remaining retries: the message goes to the DLQ as soon as the handler finishes.
+
+        Use it for messages that can never succeed (bad input, unknown customer). ``reason`` is
+        stored as ``x-error`` in the DLQ entry. Works under every ``AckPolicy``.
+        """
+        self.rejected = True
+        self.reject_reason = reason
+        self.nacked = False
 
     def __repr__(self) -> str:
         return f"Message(id={self.id!r}, stream={self.stream.name!r}, deliveries={self.deliveries})"

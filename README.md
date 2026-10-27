@@ -32,6 +32,7 @@ if __name__ == "__main__":
 - Consumer groups: group creation, `XREADGROUP`, and `XAUTOCLAIM`-style takeover of stuck messages
 - At-least-once delivery with retries (`max_retries`, optional exponential `backoff`)
 - Dead-letter queue with the original id, error and delivery count; `broker.replay_dlq()`
+- `msg.nack()` to retry, `msg.reject()` (or `RejectMessage`) to skip retries and go straight to the DLQ
 - `AckPolicy`: `NACK_ON_ERROR` (default), `ACK_ALWAYS`, `ACK_FIRST`, `MANUAL`
 - Plain dicts by default, Pydantic models when you annotate the handler with one
 - Middleware hooks (`on_receive`, `consume_scope`, `publish_scope`, `after_processed`) and an `Idempotent` middleware

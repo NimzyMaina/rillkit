@@ -221,3 +221,7 @@ Both entries went to the DLQ with `x-deliveries` of `1`, regardless of `max_retr
 ## Also dead-lettered, quietly
 
 When a message was already pending (for instance after a worker crash) and has been delivered more than `max_retries` times, rillkit dead-letters it as it is claimed, with `x-error` set to `retries exhausted`, without calling the handler again.
+
+## Skipping retries
+
+Some messages can never succeed, so retrying them only wastes attempts. Call `msg.reject("reason")` or `raise RejectMessage("reason")` and the message goes to the DLQ as soon as the handler finishes, with `x-deliveries` unchanged and `reason` in `x-error`. Decode and validation failures take the same path automatically. `nack` is the opposite: "try again later".

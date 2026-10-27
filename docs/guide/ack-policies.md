@@ -75,16 +75,19 @@ Every handler that takes a `Message` can call:
 - `msg.ack()` removes the entry from the pending list immediately (an `XACK`). It is safe to call twice.
 - `msg.nack()` marks the message as failed without raising. It stays pending and is retried after `claim_idle_ms`, or dead-lettered if retries are used up. It has no effect after an ack.
 
-`msg.acked` and `msg.nacked` tell you the current state.
+- `msg.reject(reason=None)` skips the remaining retries. When the handler finishes, the message goes to the DLQ with `reason` as `x-error`, whatever the policy. Use it for messages that can never succeed.
+
+`msg.acked`, `msg.nacked` and `msg.rejected` tell you the current state.
 
 Under `NACK_ON_ERROR` and `ACK_ALWAYS` you can use them too. If you call `msg.nack()` and then return normally, rillkit sees the nack and does not ack on your behalf.
 
-## AckMessage and NackMessage
+## AckMessage, NackMessage and RejectMessage
 
 Sometimes the simplest way to leave a handler is to raise. rillkit provides two control-flow exceptions that work from the handler **and from middleware**:
 
 - `raise AckMessage()` acknowledges the message and stops processing. Not an error; nothing is logged as a failure.
 - `raise NackMessage()` nacks the message so it is retried (or dead-lettered if retries are used up).
+- `raise RejectMessage("unknown customer")` sends the message to the DLQ now, with no retries. The text becomes `x-error`.
 
 ```python [g_acks2.py]
 import logging
@@ -128,7 +131,7 @@ INFO consumer stopped | stream: tasks | consumer: c1
 `stale` was acknowledged on its first delivery. `busy` was nacked, retried once, and then dead-lettered because `max_retries=1`.
 
 ::: tip Give `NackMessage` a reason
-The DLQ entry's `x-error` field is `str(exception)`. `NackMessage()` has an empty message, so the DLQ shows an empty error, as above. Use `raise NackMessage("rate limited")` to leave a useful trace.
+The DLQ entry's `x-error` field is `str(exception)`, falling back to the class name when the text is empty. `raise NackMessage("rate limited")` leaves a more useful trace.
 :::
 
 ## MANUAL in practice

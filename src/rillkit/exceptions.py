@@ -17,5 +17,12 @@ class AckMessage(RillkitError):
     """Raise from a handler to stop processing and acknowledge the message."""
 
 
+class RejectMessage(RillkitError):
+    """Raise from a handler to stop processing and send the message to the DLQ without retrying.
+
+    The text of the exception is stored as the DLQ ``x-error``.
+    """
+
+
 class NackMessage(RillkitError):
     """Raise from a handler to stop processing and nack the message so it is retried."""

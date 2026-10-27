@@ -17,7 +17,7 @@ from typing import (
 import redis
 
 from .ack import AckPolicy
-from .exceptions import AckMessage, DecodeError, NackMessage
+from .exceptions import AckMessage, DecodeError, NackMessage, RejectMessage
 from .message import Message
 from .middleware import BaseMiddleware
 from .stream import Stream
@@ -287,6 +287,9 @@ class Subscriber:
         except NackMessage as e:
             msg.nack()
             exc = e
+        except RejectMessage as e:
+            msg.reject(str(e) or "rejected")
+            exc = e
         except DecodeError as e:
             log.error("message %s cannot be decoded, sending to DLQ: %s", msg.id, e)
             exc = e
@@ -295,15 +298,21 @@ class Subscriber:
             log.error("handler failed for message %s (delivery %s): %s", msg.id, msg.deliveries, e)
             exc = e
             msg.error = e
-            if policy is AckPolicy.ACK_ALWAYS:
+            if msg.rejected:
+                pass  # the handler already asked to skip retries
+            elif policy is AckPolicy.ACK_ALWAYS:
                 msg.ack()
             elif policy in (AckPolicy.NACK_ON_ERROR, AckPolicy.MANUAL):
                 msg.nack()
         else:
-            if policy in (AckPolicy.NACK_ON_ERROR, AckPolicy.ACK_ALWAYS) and not msg.nacked:
+            auto_ack = policy in (AckPolicy.NACK_ON_ERROR, AckPolicy.ACK_ALWAYS)
+            if auto_ack and not msg.nacked and not msg.rejected:
                 msg.ack()
 
-        if msg.nacked and not msg.acked and self._exhausted(msg.deliveries):
+        if msg.rejected:
+            reason = msg.reject_reason or (str(exc) or type(exc).__name__ if exc else "rejected")
+            self._dead_letter(msg, reason)
+        elif msg.nacked and not msg.acked and self._exhausted(msg.deliveries):
             self._dead_letter(msg, (str(exc) or type(exc).__name__) if exc else "nacked")
         self._after(msg, exc)
         self._beat()

@@ -224,3 +224,77 @@ def test_nack_without_reason_still_records_an_error(make_broker, r, name):
     assert wait_until(lambda: r.xlen(stream.dlq_name) == 1)
     fields = r.xrange(stream.dlq_name)[0][1]
     assert fields[b"x-error"] == b"NackMessage"
+
+
+def _reject_setup(make_broker, name, handler_factory, **opts):
+    from helpers import fast
+    from rillkit import Stream
+
+    broker = make_broker()
+    stream = Stream(name, group="g")
+    calls = []
+    broker.subscribe(stream, max_retries=5, **fast(), **opts)(handler_factory(calls))
+    return broker, stream, calls
+
+
+def test_reject_exception_skips_retries(make_broker, r, name):
+    from helpers import wait_until
+    from rillkit import RejectMessage
+
+    def factory(calls):
+        def handle(body: dict):
+            calls.append(1)
+            raise RejectMessage("unknown customer")
+        return handle
+
+    broker, stream, calls = _reject_setup(make_broker, name, factory)
+    broker.start()
+    broker.publish(stream, {"a": 1})
+    assert wait_until(lambda: r.xlen(stream.dlq_name) == 1)
+    fields = r.xrange(stream.dlq_name)[0][1]
+    assert fields[b"x-error"] == b"unknown customer"
+    assert fields[b"x-deliveries"] == b"1"
+    assert len(calls) == 1
+    assert r.xpending(name, "g")["pending"] == 0
+
+
+def test_msg_reject_skips_retries_under_every_policy(make_broker, r, name):
+    from helpers import wait_until
+    from rillkit import AckPolicy, Message
+
+    for policy in AckPolicy:
+        stream_name = f"{name}-{policy.value}"
+
+        def factory(calls):
+            def handle(msg: Message):
+                calls.append(1)
+                msg.reject("bad input")
+            return handle
+
+        broker, stream, calls = _reject_setup(make_broker, stream_name, factory, ack_policy=policy)
+        broker.start()
+        broker.publish(stream, {"a": 1})
+        assert wait_until(lambda s=stream: r.xlen(s.dlq_name) == 1), policy
+        assert r.xrange(stream.dlq_name)[0][1][b"x-error"] == b"bad input"
+        assert len(calls) == 1, policy
+        assert r.xpending(stream_name, "g")["pending"] == 0, policy
+        broker.stop()
+
+
+def test_reject_then_raise_still_rejects(make_broker, r, name):
+    from helpers import wait_until
+    from rillkit import Message
+
+    def factory(calls):
+        def handle(msg: Message):
+            calls.append(1)
+            msg.reject("nope")
+            raise RuntimeError("later failure")
+        return handle
+
+    broker, stream, calls = _reject_setup(make_broker, name, factory)
+    broker.start()
+    broker.publish(stream, {"a": 1})
+    assert wait_until(lambda: r.xlen(stream.dlq_name) == 1)
+    assert r.xrange(stream.dlq_name)[0][1][b"x-error"] == b"nope"
+    assert len(calls) == 1
