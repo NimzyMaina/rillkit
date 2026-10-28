@@ -1,6 +1,6 @@
 # Ack policies
 
-An **ack policy** decides what rillkit does with a message when your handler finishes. Pass it to `subscribe`:
+An **ack policy** decides what RillKit does with a message when your handler finishes. Pass it to `subscribe`:
 
 ```python
 from rillkit import AckPolicy
@@ -16,7 +16,7 @@ def handle(job: dict): ...
 | `NACK_ON_ERROR` (default) | acked when the handler returns | left pending, retried, then DLQ | yes | at least once |
 | `ACK_ALWAYS` | acked when the handler returns | acked anyway, error is logged | never | at most once for failures |
 | `ACK_FIRST` | acked **before** the handler runs | already acked, error is logged | never | at most once |
-| `MANUAL` | rillkit does nothing; you call `msg.ack()` | left pending (same as a nack), retried, then DLQ | yes | what you implement |
+| `MANUAL` | RillKit does nothing; you call `msg.ack()` | left pending (same as a nack), retried, then DLQ | yes | what you implement |
 
 Here is each policy handling a handler that always raises, with `max_retries=1`:
 
@@ -79,11 +79,11 @@ Every handler that takes a `Message` can call:
 
 `msg.acked`, `msg.nacked` and `msg.rejected` tell you the current state.
 
-Under `NACK_ON_ERROR` and `ACK_ALWAYS` you can use them too. If you call `msg.nack()` and then return normally, rillkit sees the nack and does not ack on your behalf.
+Under `NACK_ON_ERROR` and `ACK_ALWAYS` you can use them too. If you call `msg.nack()` and then return normally, RillKit sees the nack and does not ack on your behalf.
 
 ## AckMessage, NackMessage and RejectMessage
 
-Sometimes the simplest way to leave a handler is to raise. rillkit provides two control-flow exceptions that work from the handler **and from middleware**:
+Sometimes the simplest way to leave a handler is to raise. RillKit provides two control-flow exceptions that work from the handler **and from middleware**:
 
 - `raise AckMessage()` acknowledges the message and stops processing. Not an error; nothing is logged as a failure.
 - `raise NackMessage()` nacks the message so it is retried (or dead-lettered if retries are used up).

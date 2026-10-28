@@ -1,6 +1,6 @@
 # Getting started
 
-rillkit is a small, synchronous, thread-based library for [Redis Streams](https://redis.io/docs/latest/develop/data-types/streams/). You decorate a function, rillkit reads messages from a stream, calls your function, and takes care of acknowledging, retrying and dead-lettering.
+RillKit is a small, synchronous, thread-based library for [Redis Streams](https://redis.io/docs/latest/develop/data-types/streams/). You decorate a function, RillKit reads messages from a stream, calls your function, and takes care of acknowledging, retrying and dead-lettering.
 
 ## Install
 
@@ -13,7 +13,7 @@ pip install "rillkit[pydantic]"
 ```
 :::
 
-rillkit needs Python 3.9 or newer and `redis-py` 5 or newer. The `pydantic` extra is optional and only needed if you want handlers that receive validated models (see [Pydantic models](/guide/pydantic)).
+RillKit needs Python 3.9 or newer and `redis-py` 5 or newer. The `pydantic` extra is optional and only needed if you want handlers that receive validated models (see [Pydantic models](/guide/pydantic)).
 
 You also need a Redis server. Retries use the idle filter of `XPENDING`, so use **Redis 6.2 or newer**. Locally, `docker run -p 6379:6379 redis:7` is enough.
 
@@ -59,7 +59,7 @@ INFO consumer stopped | stream: orders | consumer: billing-myhost-71496
 ```
 
 ::: tip Seeing the log lines
-rillkit logs through the standard `logging` module under the name `rillkit`. The `logging.basicConfig(...)` line at the top is what makes the `INFO` lines visible. Without it you only see warnings and errors.
+RillKit logs through the standard `logging` module under the name `rillkit`. The `logging.basicConfig(...)` line at the top is what makes the `INFO` lines visible. Without it you only see warnings and errors.
 :::
 
 ## What just happened
@@ -69,8 +69,8 @@ rillkit logs through the standard `logging` module under the name `rillkit`. The
 3. `broker.publish("orders", {...})` did an `XADD` onto the stream. The dict was turned into JSON and stored in a field called `data`.
 4. `broker.run()` created the `billing` group if it did not exist (reading from the start of the stream), started a consumer thread, and blocked.
 5. The consumer thread read the two entries with `XREADGROUP`, decoded the JSON into a `dict`, and called `handle_order` once for each.
-6. Each call returned normally, so rillkit acknowledged the entry with `XACK`.
-7. On `Ctrl+C` (SIGINT) rillkit finished the message it was working on, stopped the thread and exited cleanly with status 0.
+6. Each call returned normally, so RillKit acknowledged the entry with `XACK`.
+7. On `Ctrl+C` (SIGINT) RillKit finished the message it was working on, stopped the thread and exited cleanly with status 0.
 
 Run `python app.py` a second time and the same two orders are **not** processed again for the group, because they were acknowledged. Only the two new ones that the script publishes on startup are.
 

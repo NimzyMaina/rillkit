@@ -62,8 +62,8 @@ x-deliveries: 1
 INFO consumer stopped | stream: orders-typed | consumer: billing-1
 ```
 
-- Annotating the parameter with `Order` makes rillkit validate the body before calling the handler. `currency` was missing on the first order, so the default `KES` applied.
+- Annotating the parameter with `Order` makes RillKit validate the body before calling the handler. `currency` was missing on the first order, so the default `KES` applied.
 - `broker.publish` accepts a model instance or a plain dict. Both end up as JSON in the `data` field.
-- The third message could not become an `Order`, so it was dead-lettered on its first delivery, without retries, with the validation error in `x-error` (only the first line is printed above). The rillkit log shows the full pydantic message.
+- The third message could not become an `Order`, so it was dead-lettered on its first delivery, without retries, with the validation error in `x-error` (only the first line is printed above). The RillKit log shows the full pydantic message.
 
 See the [Pydantic guide](/guide/pydantic) for the details.

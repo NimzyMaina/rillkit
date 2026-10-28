@@ -1,6 +1,6 @@
 # Manual ack
 
-With `AckPolicy.MANUAL` rillkit never acknowledges for you on success. Your handler decides: `msg.ack()` when the work is truly done or hopeless, `msg.nack()` to ask for a retry, `msg.reject(reason)` to skip retries and dead-letter it (see [Reject vs nack](/examples/reject-vs-nack)).
+With `AckPolicy.MANUAL` RillKit never acknowledges for you on success. Your handler decides: `msg.ack()` when the work is truly done or hopeless, `msg.nack()` to ask for a retry, `msg.reject(reason)` to skip retries and dead-letter it (see [Reject vs nack](/examples/reject-vs-nack)).
 
 ```python [manual_ack.py]
 import logging

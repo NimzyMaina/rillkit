@@ -74,11 +74,11 @@ Streams keep every entry until you remove it. Choose one:
 - `Stream("orders", maxlen=100_000)` or `publish(..., maxlen=...)` trims on write (approximately; pass `approximate=False` to `publish` for an exact cap).
 - A scheduled job running `XTRIM orders MAXLEN ~ 100000`.
 
-rillkit never trims the dead letter stream. Cap it yourself, for example with `redis-cli XTRIM orders-dlq MAXLEN ~ 10000`, and watch its length. `Idempotent` markers expire on their own after `ttl`.
+RillKit never trims the dead letter stream. Cap it yourself, for example with `redis-cli XTRIM orders-dlq MAXLEN ~ 10000`, and watch its length. `Idempotent` markers expire on their own after `ttl`.
 
 ## Monitoring with redis-cli
 
-Everything rillkit does is visible in plain Redis. These are real outputs from a worker (`w1`) that handled four messages, one of which failed and is waiting for its retry. `redis-cli` prints one value per line when piped, as below:
+Everything RillKit does is visible in plain Redis. These are real outputs from a worker (`w1`) that handled four messages, one of which failed and is waiting for its retry. `redis-cli` prints one value per line when piped, as below:
 
 ```bash
 redis-cli XLEN tasks                       # entries in the stream

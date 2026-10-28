@@ -15,7 +15,7 @@ A **consumer group** lets several workers share one stream. Redis remembers, per
 | Many workers sharing the work | the same `group` name |
 | Two services that each see every message | different `group` names on the same stream |
 
-Each worker in a group is a **consumer** with a name. rillkit names it `<group>-<hostname>-<pid>` unless you pass `consumer=`.
+Each worker in a group is a **consumer** with a name. RillKit names it `<group>-<hostname>-<pid>` unless you pass `consumer=`.
 
 ## The pending list and ack
 
@@ -23,14 +23,14 @@ When Redis hands an entry to a consumer, it records it in the group's **pending 
 
 If a worker crashes mid-message, the entry just stays in the PEL. Nothing is lost, but nothing happens to it either, unless something else notices and takes it over with `XCLAIM`. Redis does not do that on its own.
 
-## How rillkit retries
+## How RillKit retries
 
-rillkit uses the pending list as its retry queue. There is no separate retry stream.
+RillKit uses the pending list as its retry queue. There is no separate retry stream.
 
-1. A handler raises. rillkit does not `XACK`, so the entry stays pending.
+1. A handler raises. RillKit does not `XACK`, so the entry stays pending.
 2. Every loop, each consumer asks Redis for pending entries that have been idle for at least `claim_idle_ms` (`XPENDING ... IDLE`).
 3. Entries that are due are taken over with `XCLAIM`, which bumps the delivery counter, and handed to the handler again.
-4. When an entry has been delivered more than `max_retries` times, rillkit copies it to the dead letter stream (`<name>-dlq`) and acknowledges the original.
+4. When an entry has been delivered more than `max_retries` times, RillKit copies it to the dead letter stream (`<name>-dlq`) and acknowledges the original.
 
 The same mechanism recovers messages from crashed workers: a dead worker's entries go idle, then any surviving consumer in the group claims them. Because of this, **delivery is at least once**. Handlers should be safe to run twice for the same message (see [`Idempotent`](/guide/middleware#idempotent)).
 
@@ -52,13 +52,13 @@ XADD  ->  XREADGROUP  ->  handler  ->  XACK                    (happy path)
 
 ## The wire format
 
-rillkit stores each message as **one stream field called `data`, holding a JSON string**:
+RillKit stores each message as **one stream field called `data`, holding a JSON string**:
 
 ```text
 XADD orders * data '{"id": 1, "total": 49.5}'
 ```
 
-That is the entire protocol. It means anything that can talk to Redis can interoperate with rillkit, in either direction.
+That is the entire protocol. It means anything that can talk to Redis can interoperate with RillKit, in either direction.
 
 ```python [g_interop.py]
 import json
@@ -98,11 +98,11 @@ rillkit consumer got: {'id': 2, 'source': 'rillkit'}
 1793095012844-0 {'data': '{"id": 2, "source": "rillkit"}'}
 ```
 
-The first order was added by plain `redis-py`; the second by rillkit and read back by plain `redis-py`. Both reached the rillkit consumer.
+The first order was added by plain `redis-py`; the second by RillKit and read back by plain `redis-py`. Both reached the RillKit consumer.
 
 Rules to keep in mind:
 
 - A producer must put JSON in the `data` field. Other fields are ignored by the handler, but you can read them from `msg.raw`.
-- An entry with no `data` field, or with `data` that is not valid JSON, cannot be decoded. rillkit sends it straight to the DLQ without retrying (see [Retries and the DLQ](/guide/retries-and-dlq#decode-errors-skip-retries)).
+- An entry with no `data` field, or with `data` that is not valid JSON, cannot be decoded. RillKit sends it straight to the DLQ without retrying (see [Retries and the DLQ](/guide/retries-and-dlq#decode-errors-skip-retries)).
 - The stream is the contract between services. `Stream(...)` objects exist so both sides can share the name, DLQ name, length cap and codec in one place.
 - If you want a different encoding, pass a `codec` to `Stream`. See the [Stream reference](/reference/stream).

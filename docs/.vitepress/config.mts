@@ -1,8 +1,8 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'rillkit',
-  description: 'Simple publish and consume for Redis Streams',
+  title: 'RillKit',
+  description: 'Publish and consume Redis Streams in Python, with consumer groups, retries and a dead-letter queue',
   base: '/rillkit/',
   cleanUrls: true,
   lastUpdated: true,
@@ -10,10 +10,27 @@ export default defineConfig({
   head: [['link', { rel: 'icon', href: '/rillkit/logo.svg' }]],
 
   markdown: {
-    lineNumbers: false,
+    // real editor themes: VS Code's default light, and Night Owl (blue-black) for dark
+    theme: { light: 'light-plus', dark: 'night-owl' },
+    lineNumbers: true,
+    config(md) {
+      // Put the file name (the `[name.py]` after the language) in an editor tab above every block.
+      // VitePress strips it from standalone blocks, so read it before the stock wrapper does.
+      const inner = md.renderer.rules.fence!
+      const kinds: Record<string, string> = { text: 'output', bash: 'terminal', sh: 'terminal', shell: 'terminal', console: 'terminal' }
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const info = tokens[idx].info
+        const title = info.match(/\[(.*)\]/)?.[1]
+        const lang = info.trim().split(/[\s{[:]/)[0] || 'text'
+        const html = inner(tokens, idx, options, env, self)
+        const label = md.utils.escapeHtml(title || kinds[lang] || lang)
+        return html.replace('<span class="lang">', `<span class="rk-file" data-kind="${title ? 'file' : 'lang'}">${label}</span><span class="lang">`)
+      }
+    },
   },
 
   themeConfig: {
+    logo: '/logo.svg',
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '/guide/' },
       { text: 'Examples', link: '/examples/', activeMatch: '/examples/' },
@@ -32,7 +49,7 @@ export default defineConfig({
           ],
         },
         {
-          text: 'Using rillkit',
+          text: 'Using RillKit',
           items: [
             { text: 'Publishing', link: '/guide/publishing' },
             { text: 'Consuming', link: '/guide/consuming' },
@@ -99,7 +116,7 @@ export default defineConfig({
     ],
 
     footer: {
-      message: 'Released under the MIT License.',
+      message: 'RillKit is released under the MIT License.',
       copyright: 'Copyright © Nimrod Maina',
     },
 

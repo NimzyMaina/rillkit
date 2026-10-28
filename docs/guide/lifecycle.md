@@ -2,7 +2,7 @@
 
 ## Startup and shutdown order
 
-`broker.start()` and `broker.stop()` run your hooks around rillkit's own work:
+`broker.start()` and `broker.stop()` run your hooks around RillKit's own work:
 
 | Step | When |
 | --- | --- |

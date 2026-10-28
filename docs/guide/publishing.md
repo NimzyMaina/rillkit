@@ -69,10 +69,10 @@ ORDERS = Stream("orders", group="billing", maxlen=100_000)
 
 ## Capping the stream with `maxlen`
 
-A stream grows forever unless you trim it. Set `maxlen` on the `Stream`, or pass `maxlen=` to a single `publish` call (the call wins). rillkit uses approximate trimming (`XADD ... MAXLEN ~ n`), which is cheap but may keep slightly more than `n` entries. Redis trims in whole blocks, so streams under about 100 entries are effectively never trimmed. Pass `approximate=False` to `publish` for an exact cap (slower on very large streams).
+A stream grows forever unless you trim it. Set `maxlen` on the `Stream`, or pass `maxlen=` to a single `publish` call (the call wins). RillKit uses approximate trimming (`XADD ... MAXLEN ~ n`), which is cheap but may keep slightly more than `n` entries. Redis trims in whole blocks, so streams under about 100 entries are effectively never trimmed. Pass `approximate=False` to `publish` for an exact cap (slower on very large streams).
 
 ::: warning Trimming can drop unprocessed messages
-If consumers fall further behind than `maxlen` entries, the oldest entries are deleted before anyone reads them. Choose a cap comfortably larger than your worst-case backlog. If an entry that is still pending gets trimmed, rillkit notices when it tries to claim it and simply acknowledges it.
+If consumers fall further behind than `maxlen` entries, the oldest entries are deleted before anyone reads them. Choose a cap comfortably larger than your worst-case backlog. If an entry that is still pending gets trimmed, RillKit notices when it tries to claim it and simply acknowledges it.
 :::
 
 ## The `publisher` decorator
@@ -107,5 +107,5 @@ except PublishError:
 ```
 
 ::: tip What is not a `PublishError`
-rillkit encodes with `json.dumps(body, default=str)`, so unusual objects (dates, UUIDs, decimals, dataclasses) are turned into strings instead of raising. If you need exact control, convert the data yourself or use a pydantic model.
+RillKit encodes with `json.dumps(body, default=str)`, so unusual objects (dates, UUIDs, decimals, dataclasses) are turned into strings instead of raising. If you need exact control, convert the data yourself or use a pydantic model.
 :::

@@ -58,7 +58,7 @@ with TestClient(app) as client:
 ```
 
 - The endpoint is a plain `def`, so FastAPI runs it in a worker thread and the blocking Redis call does not stall the event loop. If you use `async def`, wrap the call: `await run_in_threadpool(broker.publish, SIGNUPS, payload)` (from `starlette.concurrency`).
-- `PublishError` is rillkit's single exception for failed publishes. Turning it into a `503` tells the client to retry.
+- `PublishError` is RillKit's single exception for failed publishes. Turning it into a `503` tells the client to retry.
 - `status_code=202` says "accepted, not done yet", which is what it means to queue work.
 - The stored entry is `{"data": "<json>"}`, so the worker side is just `@broker.subscribe(Stream("signups", group="mailers"))` in another process.
 - `maxlen=100_000` keeps the stream bounded.
