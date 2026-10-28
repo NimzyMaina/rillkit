@@ -1,4 +1,4 @@
-# rillkit
+# RillKit
 
 Simple publish and consume for Redis Streams. Consumer groups, retries with backoff, a dead-letter
 queue, ack policies, middleware and lifecycle hooks, without the boilerplate.

@@ -89,7 +89,7 @@ broker = Broker("rediss://default:YOUR_PASSWORD@eu1-example-12345.upstash.io:637
 :::
 
 ::: warning Blocking reads and server timeouts
-rillkit blocks in `XREADGROUP` for up to `block_ms` (5 seconds by default). Some managed Redis proxies close idle connections or limit command duration. If you see repeated connection errors in the logs, lower `block_ms` and check the provider's idle timeout. rillkit logs the error and retries after 5 seconds rather than crashing.
+RillKit blocks in `XREADGROUP` for up to `block_ms` (5 seconds by default). Some managed Redis proxies close idle connections or limit command duration. If you see repeated connection errors in the logs, lower `block_ms` and check the provider's idle timeout. RillKit logs the error and retries after 5 seconds rather than crashing.
 :::
 
 ## Bring your own client
@@ -104,7 +104,7 @@ client = redis.Redis(host="redis.internal", socket_timeout=10, health_check_inte
 broker = Broker(client=client)
 ```
 
-rillkit works with both `decode_responses=False` (the default) and `True`. Two cautions:
+RillKit works with both `decode_responses=False` (the default) and `True`. Two cautions:
 
 - A client `socket_timeout` shorter than `block_ms` makes blocking reads time out. RillKit checks the client's timeout when the consumer starts and, if needed, shortens its own blocking reads to one second under it, logging a warning. This matters on redis-py 8, whose default `socket_timeout` is 5 seconds, the same as the default `block_ms`. Clients that RillKit builds from `Settings` use 15 seconds.
 - `broker.stop()` closes the client, so do not share a client you still need afterwards.

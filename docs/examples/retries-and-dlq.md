@@ -78,7 +78,7 @@ Walk through it:
 
 - `ok` ran once and was acknowledged.
 - `flaky` failed on deliveries 1 and 2 and succeeded on delivery 3, which is the last one allowed (`max_retries=2` allows 3 attempts), so it was never dead-lettered.
-- `broken` failed on all 3 attempts, so rillkit logged `moving message ... to jobs-dlq` and copied it to `jobs-dlq` with the `x-` context fields.
+- `broken` failed on all 3 attempts, so RillKit logged `moving message ... to jobs-dlq` and copied it to `jobs-dlq` with the `x-` context fields.
 - After "fixing" the bug, `replay_dlq(JOBS)` moved the entry back onto `jobs` and the handler processed it on delivery 1 of the new entry. The DLQ is empty again.
 
 Read the full rules in [Retries and the DLQ](/guide/retries-and-dlq). In production keep the default `claim_idle_ms=60000`, or anything longer than your slowest handler.
