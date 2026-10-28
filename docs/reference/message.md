@@ -4,7 +4,7 @@
 from rillkit import Message
 ```
 
-One stream entry as seen by a handler or middleware. rillkit creates it; you normally only read from it.
+One stream entry as seen by a handler or middleware. RillKit creates it; you normally only read from it.
 
 A handler receives a `Message` when a parameter is annotated `Message`, or is named `msg` or `message` with no annotation. See [Consuming](/guide/consuming#handler-signature-rules).
 
@@ -38,7 +38,7 @@ Marks the message failed so it stays pending and is retried after `claim_idle_ms
 
 ### `reject(reason=None)`
 
-Skips the remaining retries. When the handler finishes, rillkit copies the entry to the DLQ with `reason` as `x-error` and acks it. Works under every `AckPolicy`. Sets `rejected = True` and `nacked = False`. A later exception or `nack()` in the same handler does not undo it.
+Skips the remaining retries. When the handler finishes, RillKit copies the entry to the DLQ with `reason` as `x-error` and acks it. Works under every `AckPolicy`. Sets `rejected = True` and `nacked = False`. A later exception or `nack()` in the same handler does not undo it.
 
 ### `repr`
 

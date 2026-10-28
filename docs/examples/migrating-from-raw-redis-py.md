@@ -85,7 +85,7 @@ The same two messages were processed. The group creation, the loop, JSON decodin
 
 ## What carries over
 
-| Raw redis-py | rillkit |
+| Raw redis-py | RillKit |
 | --- | --- |
 | `r.xadd(S, {"data": json.dumps(x)})` | `broker.publish(S, x)`. The wire format is identical, so mixed old and new producers and consumers keep working. |
 | `xgroup_create(..., mkstream=True)` and `BUSYGROUP` handling | automatic, with `group_start_id` (`"0"` by default) |
@@ -96,8 +96,8 @@ The same two messages were processed. The group creation, the loop, JSON decodin
 
 ## Migrating safely
 
-1. Keep the **same stream name** and the **same group name**. rillkit then continues from the group's existing position and also finds your pending entries.
+1. Keep the **same stream name** and the **same group name**. RillKit then continues from the group's existing position and also finds your pending entries.
 2. Make sure the producers write JSON into a field called `data`. If your entries use other fields, see [Concepts](/guide/concepts#the-wire-format): an entry without `data` goes to the DLQ, so migrate the producer first or reshape the data.
-3. Stop the old consumers before starting rillkit ones, or give rillkit a **different consumer name** so the two do not fight. Old pending entries are claimed after `claim_idle_ms`.
-4. Check old pending entries first (`XPENDING`). rillkit counts the deliveries Redis has already recorded, so an entry that your old code retried more than `max_retries` times is dead-lettered as soon as rillkit claims it. Raise `max_retries` for the first run if that matters.
-5. Delete any retry or claim code you wrote. rillkit handles it.
+3. Stop the old consumers before starting RillKit ones, or give RillKit a **different consumer name** so the two do not fight. Old pending entries are claimed after `claim_idle_ms`.
+4. Check old pending entries first (`XPENDING`). RillKit counts the deliveries Redis has already recorded, so an entry that your old code retried more than `max_retries` times is dead-lettered as soon as RillKit claims it. Raise `max_retries` for the first run if that matters.
+5. Delete any retry or claim code you wrote. RillKit handles it.

@@ -8,7 +8,7 @@ pip install "rillkit[pydantic]"
 
 ## Typed handlers
 
-Annotate the handler parameter with a model class. rillkit calls `Model.model_validate(body)` and passes the instance:
+Annotate the handler parameter with a model class. RillKit calls `Model.model_validate(body)` and passes the instance:
 
 ```python [pydantic_models.py]
 import logging
@@ -70,7 +70,7 @@ INFO consumer stopped | stream: orders-typed | consumer: billing-1
 
 ## Validation failures go to the DLQ
 
-The third message had `"id": "not-a-number"`. Retrying could never fix that, so rillkit raised a decode error, skipped the retry cycle and moved the entry to `orders-typed-dlq` on the first delivery (`x-deliveries` is `1`). The `x-error` field holds pydantic's explanation. See [Retries and the DLQ](/guide/retries-and-dlq#decode-errors-skip-retries).
+The third message had `"id": "not-a-number"`. Retrying could never fix that, so RillKit raised a decode error, skipped the retry cycle and moved the entry to `orders-typed-dlq` on the first delivery (`x-deliveries` is `1`). The `x-error` field holds pydantic's explanation. See [Retries and the DLQ](/guide/retries-and-dlq#decode-errors-skip-retries).
 
 ## Publishing models
 

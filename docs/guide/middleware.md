@@ -171,7 +171,7 @@ class Metrics(BaseMiddleware):
         self.outcomes[("failed" if exc else "ok", msg.stream.name)] += 1
 ```
 
-Always re-raise in `consume_scope` if you catch an exception and still want rillkit to retry. Swallowing it makes the message look successful.
+Always re-raise in `consume_scope` if you catch an exception and still want RillKit to retry. Swallowing it makes the message look successful.
 
 ## publish_scope
 

@@ -88,7 +88,7 @@ INFO consumer stopped | stream: jobs | consumer: worker-1
 
 ## claim_idle_ms must exceed your slowest handler
 
-A failed message becomes eligible for retry once it has been pending and **idle** for `claim_idle_ms`. rillkit cannot tell "failed" from "still running on another worker" using idleness alone, so:
+A failed message becomes eligible for retry once it has been pending and **idle** for `claim_idle_ms`. RillKit cannot tell "failed" from "still running on another worker" using idleness alone, so:
 
 ::: danger Set claim_idle_ms longer than the longest handler runtime
 If your handler can take 90 seconds and `claim_idle_ms` is the default 60 seconds, another worker will claim the message while the first is still working, and both will process it. Choose a value comfortably above the worst case, for example twice the longest run.
@@ -141,7 +141,7 @@ The gaps between deliveries are 0.3 s, 0.6 s and 1.2 s. The default `backoff=1.0
 
 ## The dead letter queue
 
-When retries run out, rillkit appends a copy of the entry to the DLQ stream and acknowledges the original so it stops coming back. The DLQ is a normal stream named `<stream>-dlq` unless you set `Stream(..., dlq="my-dead-letters")`.
+When retries run out, RillKit appends a copy of the entry to the DLQ stream and acknowledges the original so it stops coming back. The DLQ is a normal stream named `<stream>-dlq` unless you set `Stream(..., dlq="my-dead-letters")`.
 
 The copy contains the original fields (including `data`) plus:
 
@@ -173,7 +173,7 @@ The last part of the run above shows it: after setting `fixed = True`, `replay_d
 
 ## Decode errors skip retries
 
-If a message cannot be decoded, retrying cannot help, so rillkit dead-letters it on the first delivery. That covers:
+If a message cannot be decoded, retrying cannot help, so RillKit dead-letters it on the first delivery. That covers:
 
 - no `data` field
 - `data` that is not valid JSON
@@ -220,7 +220,7 @@ Both entries went to the DLQ with `x-deliveries` of `1`, regardless of `max_retr
 
 ## Also dead-lettered, quietly
 
-When a message was already pending (for instance after a worker crash) and has been delivered more than `max_retries` times, rillkit dead-letters it as it is claimed, with `x-error` set to `retries exhausted`, without calling the handler again.
+When a message was already pending (for instance after a worker crash) and has been delivered more than `max_retries` times, RillKit dead-letters it as it is claimed, with `x-error` set to `retries exhausted`, without calling the handler again.
 
 ## Skipping retries
 

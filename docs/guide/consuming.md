@@ -29,7 +29,7 @@ def handle_order(order: dict):
 
 ## Handler signature rules
 
-rillkit looks at your handler's parameters once, when you subscribe, and decides what to pass to each:
+RillKit looks at your handler's parameters once, when you subscribe, and decides what to pass to each:
 
 | Parameter | Receives |
 | --- | --- |
