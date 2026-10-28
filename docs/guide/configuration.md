@@ -35,6 +35,7 @@ If `url` is set, it wins and the other fields are ignored.
 | `REDIS_DB` | `0` | converted to `int` |
 | `REDIS_PASSWORD` | none | |
 | `REDIS_SSL` | off | `1`, `true` or `yes` (any case) turn TLS on |
+| `REDIS_SOCKET_TIMEOUT` | `15` | seconds, or `none` for no timeout. Must be longer than `block_ms` (see below) |
 
 Pass a different prefix to read, say, `MYAPP_REDIS_URL`:
 
@@ -105,5 +106,5 @@ broker = Broker(client=client)
 
 rillkit works with both `decode_responses=False` (the default) and `True`. Two cautions:
 
-- Do not set `socket_timeout` lower than `block_ms`, or blocking reads will time out. (redis-py extends nothing for you here.)
+- A client `socket_timeout` shorter than `block_ms` makes blocking reads time out. RillKit checks the client's timeout when the consumer starts and, if needed, shortens its own blocking reads to one second under it, logging a warning. This matters on redis-py 8, whose default `socket_timeout` is 5 seconds, the same as the default `block_ms`. Clients that RillKit builds from `Settings` use 15 seconds.
 - `broker.stop()` closes the client, so do not share a client you still need afterwards.

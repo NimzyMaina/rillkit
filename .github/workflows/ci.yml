@@ -30,6 +30,28 @@ jobs:
       - run: uv run mypy src
       - run: uv run pytest -q
 
+  newest-redis-py:
+    # redis-py changes defaults between major versions (8.x set socket_timeout to 5 s), and users
+    # install the newest release, so test against it as well as the locked one.
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      REDIS_URL: redis://localhost:6379/15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+      - run: uv sync --group dev
+      - run: uv pip install --upgrade redis
+      - run: uv run --no-sync python -c "import redis; print('redis-py', redis.__version__)"
+      - run: uv run --no-sync pytest -q
+
   build:
     runs-on: ubuntu-latest
     steps:

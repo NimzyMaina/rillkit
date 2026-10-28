@@ -39,6 +39,21 @@ def _fields(raw: dict[Any, Any]) -> dict[str, str]:
     return {_text(k): _text(v) for k, v in raw.items()}
 
 
+def _socket_timeout(client: Any) -> Optional[float]:
+    """The read timeout a connection from this client will use, or None for no timeout."""
+    try:
+        conn = client.connection_pool.make_connection()
+    except Exception:
+        return None
+    try:
+        return getattr(conn, "socket_timeout", None) or getattr(conn, "_socket_timeout", None)
+    finally:
+        try:
+            conn.disconnect()
+        except Exception:
+            pass
+
+
 def _is_model(annotation: Any) -> bool:
     return inspect.isclass(annotation) and hasattr(annotation, "model_validate")
 
@@ -102,6 +117,7 @@ class Subscriber:
         self.backoff = backoff
         self.max_backoff_ms = max_backoff_ms
         self.block_ms = block_ms
+        self._block_ms = block_ms  # what is actually used, see setup()
         self.count = count
         self.own_middlewares = list(middlewares)
         self.consumer = consumer or f"{stream.group}-{socket.gethostname()}-{os.getpid()}"
@@ -128,6 +144,15 @@ class Subscriber:
     # lifecycle
 
     def setup(self) -> None:
+        # A blocking read that outlasts the client's socket timeout fails and is retried by
+        # redis-py, so keep the block time a second under the timeout.
+        timeout = _socket_timeout(self.client)
+        if timeout is not None and self.block_ms / 1000 > timeout - 1:
+            self._block_ms = max(100, int((timeout - 1) * 1000))
+            log.warning(
+                "client socket_timeout is %.1f s, shorter than block_ms=%d; using %d ms",
+                timeout, self.block_ms, self._block_ms,
+            )
         try:
             self.client.xgroup_create(
                 self.stream.name, self.group, id=self.group_start_id, mkstream=True
@@ -204,7 +229,7 @@ class Subscriber:
     def _read(self) -> list[Message]:
         result: Any = self.client.xreadgroup(
             self.group, self.consumer, {self.stream.name: ">"},
-            count=self.count, block=self.block_ms,
+            count=self.count, block=self._block_ms,
         )
         return [self._message(i, f, 1) for _, entries in result or [] for i, f in entries]
 
